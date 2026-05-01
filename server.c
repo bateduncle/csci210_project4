@@ -31,10 +31,24 @@ int main() {
 	while (1) {
 		// TODO:
 		// read requests from serverFIFO
+		int n = read(server, &req, sizeof(req));
 
+		if(n == 0)
+		{
+			close(server);
+			close(dummyfd);
 
+			server = open("serverFIFO", O_RDONLY);
+			dummyfd = open("serverFIFO", O_WRONLY);
 
+			continue;
+		}		
+		
 
+		if(n != sizeof(req))
+		{
+			continue;
+		}
 
 
 		printf("Received a request from %s to send the message %s to %s.\n",req.source,req.msg,req.target);
@@ -44,6 +58,12 @@ int main() {
 		// close target FIFO after writing the message
 
 
+		
+
+		target = open(req.target, O_WRONLY);
+
+		write(target, &req, sizeof(req));
+		close(target);
 
 
 
